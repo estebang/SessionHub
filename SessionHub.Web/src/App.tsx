@@ -147,10 +147,17 @@ function App() {
 
                 return (
                   <li key={session.id}>
-                    <button
-                      type="button"
+                    <div
                       className={`session-item ${selectedSession?.id === session.id ? 'selected' : ''}`}
                       onClick={() => setSelectedSessionId(session.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          setSelectedSessionId(session.id)
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                     >
                       <div className="session-meta-row">
                         <span className="badge track">{session.track}</span>
@@ -176,7 +183,7 @@ function App() {
                         <span>{new Date(session.startTimeUtc).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
                         <span>{session.room}</span>
                       </div>
-                    </button>
+                    </div>
                   </li>
                 )
               })}

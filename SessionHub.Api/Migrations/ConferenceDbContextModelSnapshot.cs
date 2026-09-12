@@ -17,6 +17,26 @@ namespace SessionHub.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
+            modelBuilder.Entity("SessionHub.Api.Models.Favorite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.ToTable("Favorites");
+                });
+
             modelBuilder.Entity("SessionHub.Api.Models.Session", b =>
                 {
                     b.Property<int>("Id")
@@ -405,6 +425,17 @@ namespace SessionHub.Api.Migrations
                             PhotoUrl = "",
                             Title = "Senior Consultant"
                         });
+                });
+
+            modelBuilder.Entity("SessionHub.Api.Models.Favorite", b =>
+                {
+                    b.HasOne("SessionHub.Api.Models.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("SessionHub.Api.Models.Session", b =>
