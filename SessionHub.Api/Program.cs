@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SessionHub.Api.Data;
 using SessionHub.Api.Dtos;
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<ConferenceDbContext>(options =>
 {
@@ -47,12 +51,71 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.Use(async (context, next) =>
+{
+    var requestId = context.TraceIdentifier;
+    var path = context.Request.Path.Value ?? string.Empty;
+    var method = context.Request.Method;
+
+    context.Response.Headers["X-Request-Id"] = requestId;
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "no-referrer";
+
+    using var scope = app.Logger.BeginScope(new Dictionary<string, object>
+    {
+        ["RequestId"] = requestId,
+        ["RequestMethod"] = method,
+        ["RequestPath"] = path,
+    });
+
+    app.Logger.LogInformation("Starting request {RequestMethod} {RequestPath}", method, path);
+
+    try
+    {
+        await next();
+        app.Logger.LogInformation("Completed request {RequestMethod} {RequestPath} with status {StatusCode}", method, path, context.Response.StatusCode);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Unhandled exception while processing {RequestMethod} {RequestPath}", method, path);
+        throw;
+    }
+});
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var requestId = context.TraceIdentifier;
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+
+        logger.LogError(exception, "Request failed for {RequestId} {RequestMethod} {RequestPath}", requestId, context.Request.Method, context.Request.Path.Value ?? string.Empty);
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/problem+json";
+        context.Response.Headers["X-Request-Id"] = requestId;
+
+        await context.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "An unexpected error occurred.",
+            Detail = "The service could not process the request. Please try again later.",
+            Instance = context.Request.Path,
+        });
+    });
+});
+
 app.UseCors();
 
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHsts();
     app.UseHttpsRedirection();
 }
+
+app.MapHealthChecks("/healthz");
 
 app.MapGet("/api/sessions", async (SessionService service) =>
 {
@@ -86,9 +149,12 @@ app.MapGet("/api/favorites", async (SessionService service) =>
 
 app.MapPost("/api/favorites", async (CreateFavoriteRequest request, SessionService service, ILogger<Program> logger) =>
 {
-    if (request.SessionId <= 0)
+    if (!ValidationService.IsValidSessionId(request.SessionId))
     {
-        return Results.BadRequest("SessionId must be greater than zero.");
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            [nameof(request.SessionId)] = ["SessionId must be greater than zero."]
+        });
     }
 
     var favorite = await service.AddFavoriteAsync(request.SessionId);
@@ -103,9 +169,12 @@ app.MapPost("/api/favorites", async (CreateFavoriteRequest request, SessionServi
 
 app.MapDelete("/api/favorites/{sessionId:int}", async (int sessionId, SessionService service, ILogger<Program> logger) =>
 {
-    if (sessionId <= 0)
+    if (!ValidationService.IsValidSessionId(sessionId))
     {
-        return Results.BadRequest("SessionId must be greater than zero.");
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            [nameof(sessionId)] = ["SessionId must be greater than zero."]
+        });
     }
 
     var removed = await service.RemoveFavoriteAsync(sessionId);
@@ -119,5 +188,10 @@ app.MapDelete("/api/favorites/{sessionId:int}", async (int sessionId, SessionSer
 });
 
 app.Run();
+
+public static class ValidationService
+{
+    public static bool IsValidSessionId(int sessionId) => sessionId > 0;
+}
 
 public partial class Program { }
