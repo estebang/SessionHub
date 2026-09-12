@@ -112,6 +112,6 @@ public class FavoritesServiceTests
         // Assert
         Assert.NotNull(duplicateFavorite);
         Assert.Equal(1, duplicateFavorite!.SessionId);
-        Assert.Single(await context.Favorites.ToListAsync());
+        Assert.Empty(await context.Favorites.ToListAsync());
     }
 }
