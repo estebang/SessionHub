@@ -114,3 +114,14 @@ The app uses SQLite and creates the database automatically on startup with EF Co
 ## Architecture overview
 
 See the project docs in the docs folder for a simple architectural breakdown and folder-by-folder explanation.
+
+## Azure deployment
+
+SessionHub is prepared for Azure deployment with:
+
+- Azure App Service for the API
+- Azure Application Insights for telemetry
+- Azure SQL for relational data persistence in place of the local SQLite database
+- GitHub Actions using OIDC federation rather than stored Azure credentials
+
+See [docs/azure-deployment.md](docs/azure-deployment.md) and [infra/README.md](infra/README.md) for architecture details, infrastructure templates, and deployment guidance.

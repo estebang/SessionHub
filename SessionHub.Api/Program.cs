@@ -20,6 +20,13 @@ builder.Services.AddDbContext<ConferenceDbContext>(options =>
         return;
     }
 
+    var azureSqlConnectionString = builder.Configuration.GetConnectionString("AzureSql");
+    if (!string.IsNullOrWhiteSpace(azureSqlConnectionString))
+    {
+        options.UseSqlServer(azureSqlConnectionString);
+        return;
+    }
+
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=sessionhub.db");
 });
 

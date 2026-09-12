@@ -1,0 +1,152 @@
+name: Deploy SessionHub
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: SessionHub.Web/package-lock.json
+
+      - name: Restore .NET dependencies
+        run: dotnet restore SessionHub.sln
+
+      - name: Build .NET solution
+        run: dotnet build SessionHub.sln --configuration Release --no-restore
+
+      - name: Run .NET tests
+        run: dotnet test SessionHub.Tests/SessionHub.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Install frontend dependencies
+        working-directory: SessionHub.Web
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: SessionHub.Web
+        run: npm run build
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp, javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+
+  deploy-infra:
+    needs: [build-test, codeql]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Azure infrastructure
+        uses: azure/arm-deploy@v2
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ vars.AZURE_RESOURCE_GROUP }}
+          template: ./infra/main.bicep
+          parameters: >
+            environmentName=${{ vars.ENVIRONMENT_NAME }}
+            location=${{ vars.AZURE_LOCATION }}
+            sqlAdministratorLogin=${{ secrets.SQL_ADMIN_LOGIN }}
+            sqlAdministratorPassword=${{ secrets.SQL_ADMIN_PASSWORD }}
+            tenantId=${{ secrets.AZURE_TENANT_ID }}
+
+  deploy-app:
+    needs: deploy-infra
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: SessionHub.Web/package-lock.json
+
+      - name: Restore API dependencies
+        run: dotnet restore SessionHub.sln
+
+      - name: Publish API
+        run: dotnet publish SessionHub.Api/SessionHub.Api.csproj --configuration Release --output ./publish/api
+
+      - name: Install frontend dependencies
+        working-directory: SessionHub.Web
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: SessionHub.Web
+        run: npm run build
+
+      - name: Azure login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy API to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.APP_SERVICE_NAME }}
+          package: ./publish/api
+
+      - name: Upload static frontend bundle
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination ${{ vars.WEB_STORAGE_CONTAINER }} \
+              --source SessionHub.Web/dist \
+              --account-name ${{ vars.WEB_STORAGE_ACCOUNT }} \
+              --overwrite
