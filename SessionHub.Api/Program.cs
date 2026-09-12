@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SessionHub.Api.Data;
+using SessionHub.Api.Dtos;
 using SessionHub.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +65,46 @@ app.MapGet("/api/speakers/{id:int}", async (int id, SessionService service) =>
 {
     var speaker = await service.GetSpeakerByIdAsync(id);
     return speaker is null ? Results.NotFound() : Results.Ok(speaker);
+});
+
+app.MapGet("/api/favorites", async (SessionService service) =>
+{
+    var favorites = await service.GetFavoriteSessionsAsync();
+    return Results.Ok(favorites);
+});
+
+app.MapPost("/api/favorites", async (CreateFavoriteRequest request, SessionService service, ILogger<Program> logger) =>
+{
+    if (request.SessionId <= 0)
+    {
+        return Results.BadRequest("SessionId must be greater than zero.");
+    }
+
+    var favorite = await service.AddFavoriteAsync(request.SessionId);
+    if (favorite is null)
+    {
+        logger.LogWarning("Favorite creation rejected for session id {SessionId}", request.SessionId);
+        return Results.NotFound();
+    }
+
+    return Results.Ok(favorite);
+});
+
+app.MapDelete("/api/favorites/{sessionId:int}", async (int sessionId, SessionService service, ILogger<Program> logger) =>
+{
+    if (sessionId <= 0)
+    {
+        return Results.BadRequest("SessionId must be greater than zero.");
+    }
+
+    var removed = await service.RemoveFavoriteAsync(sessionId);
+    if (!removed)
+    {
+        logger.LogInformation("Delete favorite request for missing session id {SessionId}", sessionId);
+        return Results.NotFound();
+    }
+
+    return Results.NoContent();
 });
 
 app.Run();

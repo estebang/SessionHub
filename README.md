@@ -22,11 +22,18 @@ SessionHub is a demo conference session planner built for a VSLive San Diego tal
 - TypeScript
 - Vite
 
+## Included features
+
+- Browse conference sessions
+- View session details
+- View speaker information
+- Favorite and unfavorite sessions
+- Browse favorites from a dedicated favorites view
+
 ## Not included
 
 This demo is intentionally scoped to a simpler app and does not include:
 
-- Favorites
 - Personal schedules
 - Tests
 - GitHub Actions
@@ -87,10 +94,22 @@ The React app runs at:
 - GET /api/sessions/{id}
 - GET /api/speakers
 - GET /api/speakers/{id}
+- GET /api/favorites
+- POST /api/favorites
+- DELETE /api/favorites/{sessionId}
+
+## Favorites feature
+
+The app includes a lightweight favorites flow for the demo user:
+
+- favorite a session from the session list or details panel
+- remove a favorite from the same UI
+- show a favorites-only view with a session count
+- prevent duplicate favorites by enforcing a unique index on the session id
 
 ## Database
 
-The app uses SQLite and creates the database automatically on startup with EF Core migrations. Seed data includes 15 sessions and 10 speakers.
+The app uses SQLite and creates the database automatically on startup with EF Core migrations. Seed data includes 15 sessions and 10 speakers. Favorite records are stored in a dedicated table with a unique index on the session id to prevent duplicates.
 
 ## Architecture overview
 

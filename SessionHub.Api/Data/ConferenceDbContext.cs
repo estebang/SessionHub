@@ -12,10 +12,22 @@ public class ConferenceDbContext : DbContext
 
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Speaker> Speakers => Set<Speaker>();
+    public DbSet<Favorite> Favorites => Set<Favorite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Favorite>(entity =>
+        {
+            entity.HasKey(favorite => favorite.Id);
+            entity.Property(favorite => favorite.CreatedDate).IsRequired();
+            entity.HasIndex(favorite => favorite.SessionId).IsUnique();
+            entity.HasOne(favorite => favorite.Session)
+                .WithMany()
+                .HasForeignKey(favorite => favorite.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<Speaker>(entity =>
         {
