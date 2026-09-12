@@ -1,0 +1,74 @@
+using Microsoft.EntityFrameworkCore;
+using SessionHub.Api.Models;
+
+namespace SessionHub.Api.Data;
+
+public class ConferenceDbContext : DbContext
+{
+    public ConferenceDbContext(DbContextOptions<ConferenceDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Session> Sessions => Set<Session>();
+    public DbSet<Speaker> Speakers => Set<Speaker>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Speaker>(entity =>
+        {
+            entity.HasKey(speaker => speaker.Id);
+            entity.Property(speaker => speaker.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(speaker => speaker.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(speaker => speaker.Title).IsRequired().HasMaxLength(150);
+            entity.Property(speaker => speaker.Company).IsRequired().HasMaxLength(150);
+            entity.Property(speaker => speaker.Bio).IsRequired().HasMaxLength(2000);
+            entity.Property(speaker => speaker.PhotoUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.HasKey(session => session.Id);
+            entity.Property(session => session.Title).IsRequired().HasMaxLength(200);
+            entity.Property(session => session.Summary).IsRequired().HasMaxLength(500);
+            entity.Property(session => session.Description).IsRequired().HasMaxLength(4000);
+            entity.Property(session => session.Track).IsRequired().HasMaxLength(100);
+            entity.Property(session => session.Room).IsRequired().HasMaxLength(100);
+            entity.HasOne(session => session.Speaker)
+                .WithMany(speaker => speaker.Sessions)
+                .HasForeignKey(session => session.SpeakerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Speaker>().HasData(
+            new Speaker { Id = 1, FirstName = "Maira", LastName = "Lopez", Title = "Principal Engineer", Company = "Northwind Labs", Bio = "Maira helps teams grow modern cloud architectures and developer productivity across large organizations.", PhotoUrl = "https://images.unsplash.com/..." },
+            new Speaker { Id = 2, FirstName = "Daniel", LastName = "Kemp", Title = "Director of Product", Company = "Brightlane", Bio = "Daniel connects engineering decisions with product strategy and measurable outcomes for customer experience.", PhotoUrl = "" },
+            new Speaker { Id = 3, FirstName = "Priya", LastName = "Nair", Title = "Cloud Architect", Company = "Contoso Cloud", Bio = "Priya specializes in resilient distributed systems, event-driven platforms, and operational excellence.", PhotoUrl = "" },
+            new Speaker { Id = 4, FirstName = "Lance", LastName = "Brooks", Title = "Developer Advocate", Company = "BluePeak", Bio = "Lance teaches developers how to build better user experiences with practical, production-friendly guidance.", PhotoUrl = "" },
+            new Speaker { Id = 5, FirstName = "Alicia", LastName = "Stone", Title = "Staff Software Engineer", Company = "Fabrikam", Bio = "Alicia enjoys turning complex systems into approachable patterns that teams can trust and evolve.", PhotoUrl = "" },
+            new Speaker { Id = 6, FirstName = "Marco", LastName = "Davis", Title = "AI Solutions Lead", Company = "DataWorks", Bio = "Marco helps organizations turn AI ideas into useful workflows that deliver real business value.", PhotoUrl = "" },
+            new Speaker { Id = 7, FirstName = "Harper", LastName = "Nguyen", Title = "Platform Engineer", Company = "Quanta Systems", Bio = "Harper focuses on developer platforms, automation, and reliable engineering practices for scaling teams.", PhotoUrl = "" },
+            new Speaker { Id = 8, FirstName = "Ethan", LastName = "Rossi", Title = "UX Engineer", Company = "Pixel Harbor", Bio = "Ethan bridges design and implementation to create intuitive, accessible digital products.", PhotoUrl = "" },
+            new Speaker { Id = 9, FirstName = "Sofia", LastName = "Petrov", Title = "Security Architect", Company = "Redline Security", Bio = "Sofia helps teams design secure systems without slowing delivery or sacrificing usability.", PhotoUrl = "" },
+            new Speaker { Id = 10, FirstName = "Jordan", LastName = "Mills", Title = "Senior Consultant", Company = "Northwind Consulting", Bio = "Jordan works with teams to modernize legacy systems and improve delivery through better architecture.", PhotoUrl = "" });
+
+        modelBuilder.Entity<Session>().HasData(
+            new Session { Id = 1, Title = "From Idea to Ship: Building a Modern Conference Planner", Summary = "Learn how a focused product idea becomes a polished app with clear architecture and pragmatic decisions.", Description = "This session walks through creating a small but realistic application from the ground up, covering architecture, APIs, UI, and demo-friendly decisions that make a conference talk easier to follow.", Track = "Architecture", Level = SessionLevel.Beginner, Room = "Grand Ballroom", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 9, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 10, 0, 0, TimeSpan.Zero), SpeakerId = 1 },
+            new Session { Id = 2, Title = "Designing HTTP APIs That Stay Friendly to Teams", Summary = "A simple API design approach that keeps developers productive and services easy to evolve.", Description = "This walkthrough covers contract design, resource modeling, and DTO choices that help teams move quickly without creating brittle surfaces.", Track = "Backend", Level = SessionLevel.Beginner, Room = "Harbor 1", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 9, 30, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 10, 30, 0, TimeSpan.Zero), SpeakerId = 2 },
+            new Session { Id = 3, Title = "Entity Framework Core for Demo-Ready Apps", Summary = "Use EF Core confidently for a small application with migrations, SQLite, and seed data.", Description = "This session highlights the practical patterns for using Entity Framework Core in a clean, readable app that feels realistic without becoming over-engineered.", Track = "Data", Level = SessionLevel.Intermediate, Room = "Cedar Hall", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 10, 15, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 11, 15, 0, TimeSpan.Zero), SpeakerId = 3 },
+            new Session { Id = 4, Title = "React Patterns for Conference Dashboards", Summary = "Build an interface that is easy to explain, fast to code, and pleasant to use.", Description = "Explore how a simple React view can effectively surface session data, speaker profiles, and browsing flows without extra complexity.", Track = "Frontend", Level = SessionLevel.Beginner, Room = "Innovation Lab", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 11, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 12, 0, 0, TimeSpan.Zero), SpeakerId = 4 },
+            new Session { Id = 5, Title = "Service Layers Without the Drama", Summary = "Keep business logic readable and testable in a small application architecture.", Description = "See why a focused service layer can keep logic clean and make a demo app easier to reason about in front of an audience.", Track = "Architecture", Level = SessionLevel.Intermediate, Room = "Skyline 2", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 13, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 14, 0, 0, TimeSpan.Zero), SpeakerId = 5 },
+            new Session { Id = 6, Title = "Building Trust with Better Error Handling", Summary = "Create API feedback that keeps users informed and developers confident.", Description = "This session demonstrates how thoughtful API responses and user-friendly messaging improve every stage of an app.", Track = "Backend", Level = SessionLevel.Intermediate, Room = "Harbor 2", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 13, 30, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 14, 30, 0, TimeSpan.Zero), SpeakerId = 6 },
+            new Session { Id = 7, Title = "Performance Tuning for Real-World Web Apps", Summary = "Get fast wins with caching, response shaping, and layout choices.", Description = "Learn how small improvements in the app stack create a more responsive experience for users who are browsing a busy conference schedule.", Track = "Performance", Level = SessionLevel.Advanced, Room = "North Hall", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 14, 15, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 15, 15, 0, TimeSpan.Zero), SpeakerId = 7 },
+            new Session { Id = 8, Title = "Designing a Data Model for Event Discovery", Summary = "Think through the essential entities behind a conference planner.", Description = "Use the SessionHub example to understand how sessions and speakers relate and how a small domain model supports a larger experience.", Track = "Data", Level = SessionLevel.Beginner, Room = "Cedar Hall", StartTimeUtc = new DateTimeOffset(2026, 9, 14, 15, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 14, 16, 0, 0, TimeSpan.Zero), SpeakerId = 8 },
+            new Session { Id = 9, Title = "API Contracts That Help Teams Communicate", Summary = "Good contracts are documentation, not just implementation details.", Description = "Learn how request and response models help frontend and backend teams collaborate effectively when building user-visible features.", Track = "Backend", Level = SessionLevel.Beginner, Room = "Harbor 1", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 9, 15, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 10, 15, 0, TimeSpan.Zero), SpeakerId = 2 },
+            new Session { Id = 10, Title = "Minimal UI, Maximum Clarity", Summary = "Build interfaces that tell a story without distracting from the main action.", Description = "This talk explores how clean layout decisions, strong hierarchy, and clear content produce more usable software with less code.", Track = "Frontend", Level = SessionLevel.Beginner, Room = "Innovation Lab", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 10, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 11, 0, 0, TimeSpan.Zero), SpeakerId = 4 },
+            new Session { Id = 11, Title = "Secure by Default: Common Design Patterns", Summary = "Look at practical patterns that help keep applications safer without heavy process overhead.", Description = "This session covers the shared security design choices that matter most when shipping software quickly to customers.", Track = "Security", Level = SessionLevel.Intermediate, Room = "Skyline 2", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 11, 15, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 12, 15, 0, TimeSpan.Zero), SpeakerId = 9 },
+            new Session { Id = 12, Title = "Modernizing Legacy Systems Without a Rewrite", Summary = "Use incremental patterns to improve existing systems with less risk.", Description = "This talk shows how to evolve aging applications through clear boundaries, gradual changes, and careful modernization decisions.", Track = "Architecture", Level = SessionLevel.Advanced, Room = "Grand Ballroom", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 12, 30, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 13, 30, 0, TimeSpan.Zero), SpeakerId = 10 },
+            new Session { Id = 13, Title = "Developer Experience That Scales", Summary = "Small process improvements can create a huge impact for teams and outcomes.", Description = "Learn tactics for making teams more effective through good tooling, straightforward automation, and smarter standards.", Track = "Platform", Level = SessionLevel.Intermediate, Room = "North Hall", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 13, 0, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 14, 0, 0, TimeSpan.Zero), SpeakerId = 7 },
+            new Session { Id = 14, Title = "From Data to Decision: Building Useful Insights", Summary = "Turn scattered information into a practical product story that users understand.", Description = "Explore how product teams can interpret signals and behaviors into a simple experience that helps users discover what matters.", Track = "Product", Level = SessionLevel.Beginner, Room = "Harbor 2", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 14, 30, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 15, 30, 0, TimeSpan.Zero), SpeakerId = 2 },
+            new Session { Id = 15, Title = "The Power of Accessible Interfaces", Summary = "Build inclusive experiences without making the work more complicated for the team.", Description = "This session demonstrates how accessibility, usability, and maintainability all improve when we adopt simple design practices.", Track = "UX", Level = SessionLevel.Intermediate, Room = "Innovation Lab", StartTimeUtc = new DateTimeOffset(2026, 9, 15, 15, 15, 0, TimeSpan.Zero), EndTimeUtc = new DateTimeOffset(2026, 9, 15, 16, 15, 0, TimeSpan.Zero), SpeakerId = 8 });
+    }
+}

@@ -1,0 +1,24 @@
+# .NET build outputs
+SessionHub.Api/bin/
+SessionHub.Api/obj/
+SessionHub.Api/**/*.db
+SessionHub.Api/**/*.db-shm
+SessionHub.Api/**/*.db-wal
+
+# Node / Vite
+SessionHub.Web/node_modules/
+SessionHub.Web/dist/
+SessionHub.Web/.vite/
+SessionHub.Web/*.local
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS
+Thumbs.db
+.DS_Store
