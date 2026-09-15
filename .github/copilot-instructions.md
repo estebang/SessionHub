@@ -27,6 +27,9 @@ Use these rules when generating or editing code in this repository.
   - `GET /api/sessions/{id:int}`
   - `GET /api/speakers`
   - `GET /api/speakers/{id:int}`
+  - `GET /api/favorites`
+  - `POST /api/favorites`
+  - `DELETE /api/favorites/{sessionId:int}`
 - For single-resource lookups, return `404` when missing (`Results.NotFound()`).
 - Return DTOs, not EF entities.
 - For read-only queries, use `AsNoTracking()`.

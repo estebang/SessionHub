@@ -30,14 +30,14 @@ SessionHub is a demo conference session planner built for a VSLive San Diego tal
 - Favorite and unfavorite sessions
 - Browse favorites from a dedicated favorites view
 
-## Not included
+## Out of scope
 
 This demo is intentionally scoped to a simpler app and does not include:
 
 - Personal schedules
-- Tests
-- GitHub Actions
-- Infrastructure as Code
+- User accounts or authentication
+
+The repository includes automated tests, a GitHub Actions deployment workflow, and Bicep infrastructure definitions as part of the later stages in the demo branch flow.
 
 ## Suggested branch flow
 
@@ -91,12 +91,12 @@ The React app runs at:
 ## API endpoints
 
 - GET /api/sessions
-- GET /api/sessions/{id}
+- GET /api/sessions/{id:int}
 - GET /api/speakers
-- GET /api/speakers/{id}
+- GET /api/speakers/{id:int}
 - GET /api/favorites
 - POST /api/favorites
-- DELETE /api/favorites/{sessionId}
+- DELETE /api/favorites/{sessionId:int}
 
 ## Favorites feature
 
@@ -110,6 +110,24 @@ The app includes a lightweight favorites flow for the demo user:
 ## Database
 
 The app uses SQLite and creates the database automatically on startup with EF Core migrations. Seed data includes 15 sessions and 10 speakers. Favorite records are stored in a dedicated table with a unique index on the session id to prevent duplicates.
+
+## Tests and deployment
+
+Backend tests are in `SessionHub.Tests` and can be run with:
+
+```bash
+dotnet test SessionHub.Tests/SessionHub.Tests.csproj
+```
+
+Frontend checks are available from `SessionHub.Web`:
+
+```bash
+npm run lint
+npm run build
+npm run test:e2e
+```
+
+The deployment workflow is defined in `.github/workflows/deploy.yml`. Azure infrastructure is defined with Bicep in `infra/`; see [docs/azure-deployment.md](docs/azure-deployment.md) for the deployment flow and required configuration.
 
 ## Architecture overview
 

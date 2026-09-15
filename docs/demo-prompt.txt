@@ -1,0 +1,189 @@
+00-starter:
+****** Demo 1, prompt 1 *******
+I'd like to add a new feature to this application, but before we make any changes, analyze the repository.
+
+Please explain:
+
+- Overall architecture
+- Backend structure
+- Frontend structure
+- Data model
+- API organization
+- Existing coding conventions
+- Repository organization
+- Any Copilot instructions that influence development
+
+After your analysis, identify the components that would likely be affected by adding a Favorites feature.
+
+Do not generate code yet.
+
+****** Demo 1, prompt 2 *******
+Based on your understanding of this repository, create an implementation plan for a Favorites feature.
+
+Users should be able to:
+
+- Favorite a session
+- View favorites
+- Remove favorites
+
+Create an ordered plan.
+
+For each step include:
+
+- Purpose
+- Files likely affected
+- Risks
+- Validation approach
+
+Keep the plan incremental and reviewable.
+
+Do not write code.
+
+******************************************
+demo/01-plan-complete
+
+****** Demo 2, prompt 1 *******
+Review the Favorites implementation plan.
+
+Before making any code changes:
+
+1. Explain which files need to change.
+2. Explain why each file must change.
+3. Identify any existing patterns we should follow.
+4. Identify any repository instructions that apply.
+
+Do not generate code until the analysis is complete.
+
+****** Demo 2, prompt 2 *******
+Using existing repository conventions, add the Favorites page navigation item.
+
+Explain your changes before applying them.
+
+********************************************************
+git switch demo/02-feature-complete
+Open the running app.
+
+Demo the feature.
+
+******************************************************
+
+demo/02a-feature-bug
+****** Demo 3, prompt 1 *******
+Review the Favorites implementation.
+
+Identify:
+
+- Happy path scenarios
+- Edge cases
+- Failure scenarios
+
+Which behaviors should be protected with automated tests?
+
+Explain why each test matters.
+
+****** Demo 3, prompt 2 *******
+
+Review the behavior of Favorites.
+
+Can a user accidentally favorite the same session more than once?
+
+Inspect the API, business logic, and data model.
+
+Explain your reasoning.
+
+****** Demo 3, prompt 3 *******
+The duplicate prevention test is failing.
+
+Explain:
+
+- What behavior is being violated
+- Likely root cause
+- Safest possible fix
+- Additional tests that should exist
+
+Do not modify code.
+
+*************************************************
+git switch demo/03-tests-complete
+
+Show green tests
+
+****** Demo 4, prompt 1 *******
+Perform a production-readiness review of this repository.
+
+Review for:
+
+- Security
+- Accessibility
+- Error handling
+- Logging
+- Maintainability
+- Performance
+- Configuration management
+
+For every finding:
+
+1. Cite the file
+2. Explain the risk
+3. Classify it as:
+   - Must Fix
+   - Should Fix
+   - Nice To Have
+
+Provide evidence for every recommendation.
+
+****** Demo 4, prompt 2 *******
+Which recommendation would provide the highest value with the lowest implementation cost?
+
+Explain your reasoning.
+
+***************************************************
+git switch demo/04-production-ready
+
+Open: production-readiness-review.md
+
+****** Demo 5, prompt 1 *******
+Analyze the deployment architecture for SessionHub.
+
+Explain:
+
+- Azure resources being deployed
+- GitHub Actions workflow
+- Infrastructure as Code strategy
+- Authentication model
+- Environment configuration
+
+Describe how the entire deployment process works from commit to production.
+
+****** Demo 5, prompt 2 *******
+open .github/workflows/deploy.yml
+
+Explain this workflow as if you were onboarding a new engineer.
+
+For each stage:
+
+- What it does
+- Why it exists
+- What could fail
+- How you would troubleshoot it
+
+****** Final prompt *******
+
+Looking at this repository now, summarize the engineering lifecycle we followed from feature idea to running application.
+
+Focus on:
+
+- Planning
+- Implementation
+- Testing
+- Review
+- Deployment
+
+What engineering practices contributed most to quality?
+
+
+******* The most important prompt *************
+
+Analyze the repository and identify any repository instructions, architecture guidance, coding conventions, or documentation that should influence future development.
+
+Explain why each matters.
