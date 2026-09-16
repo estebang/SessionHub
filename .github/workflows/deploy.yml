@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: SessionHub.Web/package-lock.json
 
@@ -110,7 +110,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: SessionHub.Web/package-lock.json
 
@@ -143,10 +143,13 @@ jobs:
 
       - name: Upload static frontend bundle
         uses: azure/cli@v2
+        env:
+          WEB_STORAGE_CONTAINER: ${{ vars.WEB_STORAGE_CONTAINER }}
+          WEB_STORAGE_ACCOUNT: ${{ vars.WEB_STORAGE_ACCOUNT }}
         with:
           inlineScript: |
             az storage blob upload-batch \
-              --destination ${{ vars.WEB_STORAGE_CONTAINER }} \
+              --destination "$WEB_STORAGE_CONTAINER" \
               --source SessionHub.Web/dist \
-              --account-name ${{ vars.WEB_STORAGE_ACCOUNT }} \
+              --account-name "$WEB_STORAGE_ACCOUNT" \
               --overwrite
