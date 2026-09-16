@@ -1,6 +1,6 @@
 # .NET build outputs
-SessionHub.Api/bin/
-SessionHub.Api/obj/
+**/bin/
+**/obj/
 SessionHub.Api/**/*.db
 SessionHub.Api/**/*.db-shm
 SessionHub.Api/**/*.db-wal
