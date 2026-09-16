@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SessionHub.Api.Data;
 
@@ -10,32 +11,14 @@ using SessionHub.Api.Data;
 namespace SessionHub.Api.Migrations
 {
     [DbContext(typeof(ConferenceDbContext))]
-    partial class ConferenceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260916115203_AddMoreSessionSeedData")]
+    partial class AddMoreSessionSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
-
-            modelBuilder.Entity("SessionHub.Api.Models.Favorite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SessionId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SessionId")
-                        .IsUnique();
-
-                    b.ToTable("Favorites");
-                });
 
             modelBuilder.Entity("SessionHub.Api.Models.Session", b =>
                 {
@@ -490,17 +473,6 @@ namespace SessionHub.Api.Migrations
                             PhotoUrl = "",
                             Title = "Senior Consultant"
                         });
-                });
-
-            modelBuilder.Entity("SessionHub.Api.Models.Favorite", b =>
-                {
-                    b.HasOne("SessionHub.Api.Models.Session", "Session")
-                        .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("SessionHub.Api.Models.Session", b =>
