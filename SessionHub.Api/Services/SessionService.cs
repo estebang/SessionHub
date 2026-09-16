@@ -18,12 +18,15 @@ public class SessionService
 
     public async Task<List<SessionSummaryDto>> GetSessionsAsync()
     {
-        return await _dbContext.Sessions
+        var sessions = await _dbContext.Sessions
             .AsNoTracking()
             .Include(session => session.Speaker)
+            .ToListAsync();
+
+        return sessions
             .OrderBy(session => session.StartTimeUtc)
             .Select(session => SessionMapping.ToSummaryDto(session))
-            .ToListAsync();
+            .ToList();
     }
 
     public async Task<SessionDetailDto?> GetSessionByIdAsync(int id)
