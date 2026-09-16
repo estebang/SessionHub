@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using SessionHub.Api.Data;
 using SessionHub.Api.Dtos;
 using SessionHub.Api.Services;
@@ -14,6 +15,10 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<ConferenceDbContext>(options =>
 {
+    // Migrations are authored against SQLite conventions; ignore the false-positive
+    // pending-changes warning that fires when the same model runs on SQL Server in production.
+    options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+
     if (builder.Environment.IsEnvironment("Testing"))
     {
         options.UseInMemoryDatabase("SessionHubTestingDb");
