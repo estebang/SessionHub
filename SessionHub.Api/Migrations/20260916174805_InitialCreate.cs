@@ -17,14 +17,14 @@ namespace SessionHub.Api.Migrations
                 name: "Speakers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(maxLength: 100, nullable: false),
-                    Title = table.Column<string>(maxLength: 150, nullable: false),
-                    Company = table.Column<string>(maxLength: 150, nullable: false),
-                    Bio = table.Column<string>(maxLength: 2000, nullable: false),
-                    PhotoUrl = table.Column<string>(maxLength: 500, nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Company = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Bio = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    PhotoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -35,17 +35,17 @@ namespace SessionHub.Api.Migrations
                 name: "Sessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Title = table.Column<string>(maxLength: 200, nullable: false),
-                    Summary = table.Column<string>(maxLength: 500, nullable: false),
-                    Description = table.Column<string>(maxLength: 4000, nullable: false),
-                    Track = table.Column<string>(maxLength: 100, nullable: false),
-                    Level = table.Column<int>(nullable: false),
-                    Room = table.Column<string>(maxLength: 100, nullable: false),
-                    StartTimeUtc = table.Column<DateTimeOffset>(nullable: false),
-                    EndTimeUtc = table.Column<DateTimeOffset>(nullable: false),
-                    SpeakerId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Summary = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    Track = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    Room = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    StartTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    EndTimeUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    SpeakerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -54,6 +54,26 @@ namespace SessionHub.Api.Migrations
                         name: "FK_Sessions_Speakers_SpeakerId",
                         column: x => x.SpeakerId,
                         principalTable: "Speakers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Favorites",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Favorites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Favorites_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -94,8 +114,19 @@ namespace SessionHub.Api.Migrations
                     { 12, "This talk shows how to evolve aging applications through clear boundaries, gradual changes, and careful modernization decisions.", new DateTimeOffset(new DateTime(2026, 9, 15, 13, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 2, "Grand Ballroom", 10, new DateTimeOffset(new DateTime(2026, 9, 15, 12, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Use incremental patterns to improve existing systems with less risk.", "Modernizing Legacy Systems Without a Rewrite", "Architecture" },
                     { 13, "Learn tactics for making teams more effective through good tooling, straightforward automation, and smarter standards.", new DateTimeOffset(new DateTime(2026, 9, 15, 14, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "North Hall", 7, new DateTimeOffset(new DateTime(2026, 9, 15, 13, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Small process improvements can create a huge impact for teams and outcomes.", "Developer Experience That Scales", "Platform" },
                     { 14, "Explore how product teams can interpret signals and behaviors into a simple experience that helps users discover what matters.", new DateTimeOffset(new DateTime(2026, 9, 15, 15, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 0, "Harbor 2", 2, new DateTimeOffset(new DateTime(2026, 9, 15, 14, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Turn scattered information into a practical product story that users understand.", "From Data to Decision: Building Useful Insights", "Product" },
-                    { 15, "This session demonstrates how accessibility, usability, and maintainability all improve when we adopt simple design practices.", new DateTimeOffset(new DateTime(2026, 9, 15, 16, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "Innovation Lab", 8, new DateTimeOffset(new DateTime(2026, 9, 15, 15, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Build inclusive experiences without making the work more complicated for the team.", "The Power of Accessible Interfaces", "UX" }
+                    { 15, "This session demonstrates how accessibility, usability, and maintainability all improve when we adopt simple design practices.", new DateTimeOffset(new DateTime(2026, 9, 15, 16, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "Innovation Lab", 8, new DateTimeOffset(new DateTime(2026, 9, 15, 15, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Build inclusive experiences without making the work more complicated for the team.", "The Power of Accessible Interfaces", "UX" },
+                    { 16, "This practical session shows how rapid feedback loops help cross-functional teams ship confidently, reduce rework, and keep stakeholders aligned.", new DateTimeOffset(new DateTime(2026, 9, 15, 10, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 0, "Lakeside 3", 5, new DateTimeOffset(new DateTime(2026, 9, 15, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Use smaller release rhythms and clearer signals to improve delivery quality.", "Shipping Faster with Better Feedback Loops", "Product" },
+                    { 17, "Learn the patterns that make AI-enabled workflows useful in real product teams, including guardrails, observability, and user trust.", new DateTimeOffset(new DateTime(2026, 9, 15, 11, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 2, "Atlas Hall", 6, new DateTimeOffset(new DateTime(2026, 9, 15, 10, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Design AI-assisted experiences that feel helpful, safe, and predictable.", "Patterns for Agentic Workflows", "AI" },
+                    { 18, "This session distills the common hard-won lessons from taking a small application from an early demo into a real operational system.", new DateTimeOffset(new DateTime(2026, 9, 15, 12, 45, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "Grand Ballroom", 1, new DateTimeOffset(new DateTime(2026, 9, 15, 11, 45, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Turn a promising prototype into something a team can rely on long term.", "From Prototype to Production: Lessons Learned", "Architecture" },
+                    { 19, "This session explores how disciplined styling choices can improve readability, responsiveness, and overall product polish without overbuilding the CSS layer.", new DateTimeOffset(new DateTime(2026, 9, 15, 14, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 0, "Innovation Lab", 8, new DateTimeOffset(new DateTime(2026, 9, 15, 13, 15, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Use simple styling techniques to improve clarity and visual confidence.", "Practical CSS for Better Product Experiences", "Frontend" },
+                    { 20, "Discover the practical habits that help small teams keep a system healthy as it grows without adding unnecessary ceremony.", new DateTimeOffset(new DateTime(2026, 9, 15, 15, 45, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "Harbor 1", 7, new DateTimeOffset(new DateTime(2026, 9, 15, 14, 45, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "Build a sustainable rhythm around deployment, ownership, and reliability.", "Operational Excellence for Small Teams", "Platform" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorites_SessionId",
+                table: "Favorites",
+                column: "SessionId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_SpeakerId",
@@ -106,6 +137,9 @@ namespace SessionHub.Api.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Favorites");
+
             migrationBuilder.DropTable(
                 name: "Sessions");
 
