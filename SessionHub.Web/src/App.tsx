@@ -26,10 +26,14 @@ type Session = {
   speaker: SpeakerSummary
 }
 
+type ViewMode = 'sessions' | 'favorites'
+
 function App() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [speakers, setSpeakers] = useState<SpeakerDetails[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null)
+  const [favoriteSessionIds, setFavoriteSessionIds] = useState<number[]>([])
+  const [viewMode, setViewMode] = useState<ViewMode>('sessions')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -60,15 +64,38 @@ function App() {
     void fetchData()
   }, [])
 
-  const selectedSession = useMemo(
-    () => sessions.find((session) => session.id === selectedSessionId) ?? sessions[0],
-    [selectedSessionId, sessions],
+  const favoriteSessions = useMemo(
+    () => sessions.filter((session) => favoriteSessionIds.includes(session.id)),
+    [favoriteSessionIds, sessions],
   )
+
+  const visibleSessions = viewMode === 'favorites' ? favoriteSessions : sessions
+
+  const selectedSession = useMemo(() => {
+    const source = visibleSessions.length > 0 ? visibleSessions : sessions
+    return source.find((session) => session.id === selectedSessionId) ?? source[0]
+  }, [selectedSessionId, sessions, visibleSessions])
 
   const selectedSpeaker = useMemo(
     () => speakers.find((speaker) => speaker.name === selectedSession?.speaker.name) ?? speakers[0],
     [selectedSession, speakers],
   )
+
+  const isFavorite = selectedSession ? favoriteSessionIds.includes(selectedSession.id) : false
+
+  const toggleFavorite = () => {
+    if (!selectedSession) {
+      return
+    }
+
+    setFavoriteSessionIds((currentFavoriteIds) => {
+      if (currentFavoriteIds.includes(selectedSession.id)) {
+        return currentFavoriteIds.filter((favoriteId) => favoriteId !== selectedSession.id)
+      }
+
+      return [...currentFavoriteIds, selectedSession.id]
+    })
+  }
 
   return (
     <div className="app-shell">
@@ -77,23 +104,46 @@ function App() {
           <p className="eyebrow">Conference planner</p>
           <h1>SessionHub</h1>
         </div>
-        <div className="header-pill">15 sessions • 10 speakers</div>
+
+        <div className="topbar-actions">
+          <nav className="topbar-nav" aria-label="Primary navigation">
+            <button
+              type="button"
+              className={`nav-item ${viewMode === 'sessions' ? 'active' : ''}`}
+              onClick={() => setViewMode('sessions')}
+            >
+              Sessions
+            </button>
+            <button
+              type="button"
+              className={`nav-item ${viewMode === 'favorites' ? 'active' : ''}`}
+              onClick={() => setViewMode('favorites')}
+            >
+              Favorites
+            </button>
+          </nav>
+          <div className="header-pill">
+            {viewMode === 'favorites' ? `${favoriteSessions.length} favorites` : `${sessions.length} sessions • ${speakers.length} speakers`}
+          </div>
+        </div>
       </header>
 
       <main className="layout">
         <aside className="panel session-list-panel">
           <div className="panel-header">
-            <h2>Sessions</h2>
-            <span>{sessions.length}</span>
+            <h2>{viewMode === 'favorites' ? 'Favorites' : 'Sessions'}</h2>
+            <span>{viewMode === 'favorites' ? favoriteSessions.length : sessions.length}</span>
           </div>
 
           {loading ? (
             <p className="empty-state">Loading sessions…</p>
-          ) : sessions.length === 0 ? (
-            <p className="empty-state">No sessions available right now.</p>
+          ) : visibleSessions.length === 0 ? (
+            <p className="empty-state">
+              {viewMode === 'favorites' ? 'No favorites saved yet.' : 'No sessions available right now.'}
+            </p>
           ) : (
             <ul className="session-list">
-              {sessions.map((session) => (
+              {visibleSessions.map((session) => (
                 <li key={session.id}>
                   <button
                     type="button"
@@ -125,9 +175,19 @@ function App() {
                   <p className="eyebrow">{selectedSession.track}</p>
                   <h2>{selectedSession.title}</h2>
                 </div>
-                <div className="detail-tags">
-                  <span className="badge dark">{selectedSession.level}</span>
-                  <span className="badge dark">{selectedSession.room}</span>
+                <div className="detail-actions">
+                  <div className="detail-tags">
+                    <span className="badge dark">{selectedSession.level}</span>
+                    <span className="badge dark">{selectedSession.room}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`favorite-toggle ${isFavorite ? 'active' : ''}`}
+                    onClick={toggleFavorite}
+                    aria-pressed={isFavorite}
+                  >
+                    {isFavorite ? '★ Favorited' : '☆ Favorite'}
+                  </button>
                 </div>
               </div>
 
