@@ -33,7 +33,6 @@ function App() {
   const [speakers, setSpeakers] = useState<SpeakerDetails[]>([])
   const [favoriteSessionIds, setFavoriteSessionIds] = useState<number[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null)
-  const [favoriteSessionIds, setFavoriteSessionIds] = useState<number[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>('sessions')
   const [loading, setLoading] = useState(true)
 
