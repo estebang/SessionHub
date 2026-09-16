@@ -17,14 +17,14 @@ namespace SessionHub.Api.Migrations
                 name: "Speakers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Company = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Bio = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
-                    PhotoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false)
+                    FirstName = table.Column<string>(maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(maxLength: 100, nullable: false),
+                    Title = table.Column<string>(maxLength: 150, nullable: false),
+                    Company = table.Column<string>(maxLength: 150, nullable: false),
+                    Bio = table.Column<string>(maxLength: 2000, nullable: false),
+                    PhotoUrl = table.Column<string>(maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -35,17 +35,17 @@ namespace SessionHub.Api.Migrations
                 name: "Sessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Summary = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
-                    Track = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Level = table.Column<int>(type: "INTEGER", nullable: false),
-                    Room = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    StartTimeUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    EndTimeUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    SpeakerId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Title = table.Column<string>(maxLength: 200, nullable: false),
+                    Summary = table.Column<string>(maxLength: 500, nullable: false),
+                    Description = table.Column<string>(maxLength: 4000, nullable: false),
+                    Track = table.Column<string>(maxLength: 100, nullable: false),
+                    Level = table.Column<int>(nullable: false),
+                    Room = table.Column<string>(maxLength: 100, nullable: false),
+                    StartTimeUtc = table.Column<DateTimeOffset>(nullable: false),
+                    EndTimeUtc = table.Column<DateTimeOffset>(nullable: false),
+                    SpeakerId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

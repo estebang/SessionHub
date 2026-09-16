@@ -15,10 +15,10 @@ namespace SessionHub.Api.Migrations
                 name: "Favorites",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    SessionId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    SessionId = table.Column<int>(nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
