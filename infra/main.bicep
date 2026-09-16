@@ -29,6 +29,9 @@ param sqlAdministratorPassword string
 @description('The Azure AD tenant ID used for OIDC deployment authentication.')
 param tenantId string
 
+@description('The origin of the static frontend site, allowed via CORS. Leave empty if not yet known.')
+param frontendOrigin string = ''
+
 var appServiceSkuName = 'B1'
 var appServiceSkuTier = 'Basic'
 
@@ -101,6 +104,10 @@ resource appService 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'ConnectionStrings__AzureSql'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${sqlDatabase.name};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorPassword};Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;'
+        }
+        {
+          name: 'Cors__AllowedOrigins__0'
+          value: frontendOrigin
         }
       ]
     }

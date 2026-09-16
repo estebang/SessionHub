@@ -41,7 +41,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:4173", "http://localhost:4174")
+        var allowedOrigins = new List<string> { "http://localhost:5173", "http://localhost:4173", "http://localhost:4174" };
+        var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        allowedOrigins.AddRange(configuredOrigins.Where(origin => !string.IsNullOrWhiteSpace(origin)));
+
+        policy.WithOrigins(allowedOrigins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

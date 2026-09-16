@@ -28,6 +28,9 @@ type Session = {
 
 type ViewMode = 'sessions' | 'favorites'
 
+// In production the frontend is hosted separately from the API, so calls must be absolute.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+
 function App() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [speakers, setSpeakers] = useState<SpeakerDetails[]>([])
@@ -40,9 +43,9 @@ function App() {
     const fetchData = async () => {
       try {
         const [sessionsResponse, speakersResponse, favoritesResponse] = await Promise.all([
-          fetch('/api/sessions'),
-          fetch('/api/speakers'),
-          fetch('/api/favorites'),
+          fetch(`${API_BASE_URL}/api/sessions`),
+          fetch(`${API_BASE_URL}/api/speakers`),
+          fetch(`${API_BASE_URL}/api/favorites`),
         ])
 
         if (!sessionsResponse.ok || !speakersResponse.ok || !favoritesResponse.ok) {
@@ -91,7 +94,7 @@ function App() {
 
     try {
       if (isFavorited) {
-        const response = await fetch(`/api/favorites/${sessionId}`, { method: 'DELETE' })
+        const response = await fetch(`${API_BASE_URL}/api/favorites/${sessionId}`, { method: 'DELETE' })
         if (!response.ok) {
           throw new Error('Unable to remove favorite')
         }
@@ -100,7 +103,7 @@ function App() {
         return
       }
 
-      const response = await fetch('/api/favorites', {
+      const response = await fetch(`${API_BASE_URL}/api/favorites`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),

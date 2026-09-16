@@ -81,6 +81,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Get frontend origin
+        id: frontend-origin
+        run: |
+          origin=$(az storage account show --name ${{ vars.WEB_STORAGE_ACCOUNT }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --query "primaryEndpoints.web" -o tsv)
+          origin=${origin%/}
+          echo "url=$origin" >> "$GITHUB_OUTPUT"
+
       - name: Deploy Azure infrastructure
         uses: azure/arm-deploy@v2
         with:
@@ -93,6 +100,7 @@ jobs:
             sqlAdministratorLogin=${{ secrets.SQL_ADMIN_LOGIN }}
             sqlAdministratorPassword=${{ secrets.SQL_ADMIN_PASSWORD }}
             tenantId=${{ secrets.AZURE_TENANT_ID }}
+            frontendOrigin=${{ steps.frontend-origin.outputs.url }}
 
   deploy-app:
     needs: deploy-infra
@@ -126,6 +134,8 @@ jobs:
 
       - name: Build frontend
         working-directory: SessionHub.Web
+        env:
+          VITE_API_BASE_URL: https://${{ vars.APP_SERVICE_NAME }}.azurewebsites.net
         run: npm run build
 
       - name: Azure login with OIDC
