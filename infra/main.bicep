@@ -99,7 +99,7 @@ resource appService 'Microsoft.Web/sites@2023-01-01' = {
           value: '1'
         }
         {
-          name: 'AzureSql'
+          name: 'ConnectionStrings__AzureSql'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${sqlDatabase.name};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorPassword};Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True;'
         }
       ]

@@ -45,9 +45,9 @@ The infrastructure template sets the following runtime settings:
 
 - APPLICATIONINSIGHTS_CONNECTION_STRING
 - ASPNETCORE_ENVIRONMENT
-- AzureSql
+- ConnectionStrings__AzureSql
 
-The AzureSql connection string should be available as an application setting on the App Service and should point to the Azure SQL database created in the Bicep deployment.
+The AzureSql connection string should be available as an application setting on the App Service (using the `ConnectionStrings__AzureSql` key so ASP.NET Core configuration binds it to `ConnectionStrings:AzureSql`) and should point to the Azure SQL database created in the Bicep deployment.
 
 ## Rollback process
 
