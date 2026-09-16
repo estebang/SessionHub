@@ -14,7 +14,7 @@ param appServiceName string = 'app-sessionhub-prod'
 param applicationInsightsName string = 'appi-${environmentName}-${uniqueString(resourceGroup().id)}'
 
 @description('The Azure SQL logical server name.')
-param sqlServerName string = 'sql-${environmentName}-${uniqueString(resourceGroup().id)}'
+param sqlServerName string = 'sqlsrv-${environmentName}-${uniqueString(resourceGroup().id)}'
 
 @description('The Azure SQL database name.')
 param sqlDatabaseName string = 'sessionhub'
