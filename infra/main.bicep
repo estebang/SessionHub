@@ -8,7 +8,7 @@ param environmentName string
 param appServicePlanName string = 'asp-${environmentName}-${uniqueString(resourceGroup().id)}'
 
 @description('The name of the App Service app.')
-param appServiceName string = 'app-${environmentName}-${uniqueString(resourceGroup().id)}'
+param appServiceName string = 'app-sessionhub-prod'
 
 @description('The application insights name.')
 param applicationInsightsName string = 'appi-${environmentName}-${uniqueString(resourceGroup().id)}'
